@@ -4,13 +4,15 @@ import time
 import tkinter
 import tkinter.messagebox
 import tkinter.ttk
-
+from tkinter import filedialog
+from PIL import Image
 import keyboard
 import psutil
 import serial
 import serial.tools.list_ports
 import win32gui
 import win32process
+from PIL.Image import Resampling
 
 firstEnter = True
 
@@ -43,7 +45,8 @@ def searchPortsList():
     portList = list(serial.tools.list_ports.comports())
     if len(portList) != 0:
         # 如果串口集合不为0则去判断是否有自己的设备，有的话就连接没有的话就不处理
-        print(len(portList))
+        firstPort = portList[0]
+        print(firstPort)
         return portList
     if not firstEnter:
         tkinter.messagebox.showinfo(title="提示", message='未搜索到设备', parent=window)
@@ -57,7 +60,13 @@ appList = searchAppList()
 
 
 def connectSerialPort():
-    print('hello')
+    selected_file_name = tkinter.filedialog.askopenfilename()
+    image = Image.open(selected_file_name)
+    w, h = image.size  # 查看图片尺寸
+    print(w, h)
+    image.resize((128, 96), Resampling.LANCZOS)
+    # 保存再什么地方了？
+    image.save('D:\\abc.png')
 
 
 '''
@@ -68,9 +77,9 @@ def connectSerialPort():
 def closeWindow():
     ans = tkinter.messagebox.askokcancel(title='Warning', message='是否确认关闭应用', parent=window)
     if ans:
-        window.destroy()
         appMoniterThread.kill()
         hotKeyMoniterThread.kill()
+        window.destroy()
         sys.exit(0)
     else:
         return
